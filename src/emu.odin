@@ -44,7 +44,11 @@ load :: proc(m: ^Machine, rom: io.Stream) {
 
 run :: proc(m: ^Machine) {
     ip: u16 = 0x200
-    loop: for {
+    loop: for i := 0; ; i = (i + 1) % 10 {
+        if (i == 0) {
+            if m.delay_timer > 0 do m.delay_timer -= 1
+            if m.sound_timer > 0 do m.sound_timer -= 1
+        }
         inst := u16(m.memory[ip]) << 8 | u16(m.memory[ip+1])
         fnib := inst & 0xf000
         lnib := inst & 0x000f
@@ -142,13 +146,13 @@ run :: proc(m: ^Machine) {
         case fnib == 0xf000:
             switch inst & 0x00ff {
             case 0x07:
-                // TODO delay timer
+                m.registers[(inst & 0x0f00) >> 8] = m.delay_timer
             case 0x0a:
                 // TODO keypresses
             case 0x15:
-                // TODO delay timer
+                m.delay_timer = m.registers[(inst & 0x0f00) >> 8]
             case 0x18:
-                // TODO sound timer
+                m.sound_timer = m.registers[(inst & 0x0f00) >> 8]
             case 0x1e:
                 m.index += u16(m.registers[(inst & 0x0f00) >> 8])
             case 0x29:
@@ -175,7 +179,7 @@ run :: proc(m: ^Machine) {
         case:
             break loop
         }
-        time.sleep(time.Duration(time.duration_nanoseconds(16666)))
+        time.sleep(time.Duration(time.duration_nanoseconds(1666)))
         ip += 2
     }
 

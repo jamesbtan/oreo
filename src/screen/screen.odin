@@ -19,7 +19,9 @@ clear :: proc(s: ^Screen) {
     s->clear()
 }
 
-draw_sprite :: proc(s: ^Screen, sprite: []u8, x, y: u8) -> (swap: bool) {
+draw_sprite :: proc(s: ^Screen, sprite: []u8, xp, yp: u8) -> (swap: bool) {
+    x := xp % 64
+    y := yp % 32
     if x % 8 == 0 {
         xp := x / 8
         for row, i in sprite {
