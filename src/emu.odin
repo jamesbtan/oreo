@@ -99,15 +99,26 @@ run :: proc(m: ^Machine) {
             case 0x3:
                 regX^ ~= regY^
             case 0x4:
-                regX^ += regY^
+                sum := regX^ + regY^
+                flag := u8(sum < regX^)
+                regX^ = sum
+                m.registers[0xf] = flag
             case 0x5:
+                flag := u8(regX^ > regY^)
                 regX^ -= regY^
+                m.registers[0xf] = flag
             case 0x7:
+                flag := u8(regY^ > regX^)
                 regX^ = regY^ - regX^
+                m.registers[0xf] = flag
             case 0x6:
+                flag := regY^ & 1
                 regX^ = regY^ >> 1
+                m.registers[0xf] = flag
             case 0xe:
+                flag := regY^ >> 7
                 regX^ = regY^ << 1
+                m.registers[0xf] = flag
             }
         case fnib == 0x9000:
             reg1 := m.registers[(inst & 0x0f00) >> 8]
