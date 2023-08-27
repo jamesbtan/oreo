@@ -16,20 +16,21 @@ get_screen :: proc() -> Screen {
     }
 }
 
-termbox_init :: proc(^screen.Screen) {
+termbox_init :: proc(rawptr) {
     init()
     hide_cursor()
 }
 
-termbox_deinit :: proc(^screen.Screen) {
+termbox_deinit :: proc(rawptr) {
     shutdown()
 }
 
-termbox_clear :: proc(^screen.Screen) {
+termbox_clear :: proc(rawptr) {
     clear()
 }
 
-termbox_draw :: proc(s: ^screen.Screen) {
+termbox_draw :: proc(sr: rawptr) {
+    s := (^Screen)(sr)
     for y: u8 = 0; y < 32; y += 1 {
         for x: u8 = 63; x <= 63; x -= 1 {
             xc: u8 = x / 8

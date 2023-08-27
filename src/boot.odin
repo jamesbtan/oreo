@@ -2,14 +2,12 @@ package oreo
 
 import "core:os"
 import "core:fmt"
-import "core:c"
 import "screen/termbox"
 
 main :: proc() {
     error: u16
     {
-        m: Machine
-        m.screen = termbox.get_screen()
+        m := Machine{screen=termbox.get_screen()}
         init(&m)
         defer deinit(&m)
         {

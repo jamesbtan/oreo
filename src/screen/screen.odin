@@ -4,10 +4,10 @@ import "core:fmt"
 
 Screen :: struct {
     buf: [32][8]u8,
-    init: proc(^Screen),
-    deinit: proc(^Screen),
-    clear: proc(^Screen),
-    draw: proc(^Screen),
+    init: proc(rawptr),
+    deinit: proc(rawptr),
+    clear: proc(rawptr),
+    draw: proc(rawptr),
 }
 
 clear :: proc(s: ^Screen) {

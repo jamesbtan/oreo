@@ -26,7 +26,6 @@ init :: proc(m: ^Machine) {
         0xf0, 0x80, 0xf0, 0x80, 0x80, // F
     }
     mem.copy_non_overlapping(&m.memory[0], &sprites[0], len(sprites))
-    // stack from [0x50,0x70)? 0x70 is current index
     m.screen->init()
 }
 
@@ -51,7 +50,7 @@ run :: proc(m: ^Machine) -> u16 {
         lnib := inst & 0x000f
         switch {
         case inst == 0x00e0:
-            m.screen->clear()
+            screen.clear(&m.screen)
         case fnib == 0x1000:
             ip = inst & 0x0fff
             continue loop
