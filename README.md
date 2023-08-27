@@ -14,13 +14,13 @@ Will be implementing instructions in the order they appear in https://github.com
   - [x] 1nnn
 - [x] IBM logo
   - [x] 7xnn
-- [ ] Corax+ opcode test
+- [x] Corax+ opcode test
   - [x] 3xnn
   - [x] 4xnn
   - [x] 5xy0
   - [x] 9xy0
-  - [ ] 2nnn
-  - [ ] 00EE
+  - [x] 2nnn
+  - [x] 00EE
   - [x] 8xy0
   - [x] 8xy1
   - [x] 8xy2
