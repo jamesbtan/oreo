@@ -15,22 +15,22 @@ Will be implementing instructions in the order they appear in https://github.com
 - [x] IBM logo
   - [x] 7xnn
 - [ ] Corax+ opcode test
-  - [ ] 3xnn
-  - [ ] 4xnn
-  - [ ] 5xy0
-  - [ ] 9xy0
+  - [x] 3xnn
+  - [x] 4xnn
+  - [x] 5xy0
+  - [x] 9xy0
   - [ ] 2nnn
   - [ ] 00EE
-  - [ ] 8xy0
-  - [ ] 8xy1
-  - [ ] 8xy2
-  - [ ] 8xy3
-  - [ ] 8xy4
-  - [ ] 8xy5
-  - [ ] 8xy7
-  - [ ] 8xy6
-  - [ ] 8xyE
-  - [ ] Fx65
-  - [ ] Fx55
-  - [ ] Fx33
-  - [ ] Fx1E
+  - [x] 8xy0
+  - [x] 8xy1
+  - [x] 8xy2
+  - [x] 8xy3
+  - [x] 8xy4
+  - [x] 8xy5
+  - [x] 8xy7
+  - [x] 8xy6
+  - [x] 8xyE
+  - [x] Fx65
+  - [x] Fx55
+  - [x] Fx33
+  - [x] Fx1E
