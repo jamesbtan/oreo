@@ -6,8 +6,7 @@ import "core:time"
 import "screen"
 
 init :: proc(m: ^Machine) {
-    // can i make this const?
-    sprites := [?]u8{
+    sprites :: [?]u8{
         0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
         0xf0, 0x10, 0xf0, 0x80, 0xf0, // 2
@@ -25,7 +24,7 @@ init :: proc(m: ^Machine) {
         0xf0, 0x80, 0xf0, 0x80, 0xf0, // E
         0xf0, 0x80, 0xf0, 0x80, 0x80, // F
     }
-    mem.copy_non_overlapping(&m.memory[0], &sprites[0], len(sprites))
+    for byte, i in sprites do m.memory[i] = byte
     m.screen->init()
 }
 
@@ -49,13 +48,16 @@ run :: proc(m: ^Machine) {
             if m.delay_timer > 0 do m.delay_timer -= 1
             if m.sound_timer > 0 do m.sound_timer -= 1
         }
+        // if (m.sound_timer > 0) do screen->sound()
+        // how will i turn sound on and off?
         inst := u16(m.memory[ip]) << 8 | u16(m.memory[ip+1])
         nibs: [4]u8 = {
-            u8(inst & 0xf000 >> 12),
-            u8(inst & 0x0f00 >> 8),
-            u8(inst & 0x00f0 >> 4),
-            u8(inst & 0x000f >> 0),
+            u8(inst >> 12 & 0x000f),
+            u8(inst >> 8  & 0x000f),
+            u8(inst >> 4  & 0x000f),
+            u8(inst >> 0  & 0x000f),
         }
+        ip += 2
         switch {
         case inst == 0x00e0:
             screen.clear(&m.screen)
@@ -63,17 +65,14 @@ run :: proc(m: ^Machine) {
             m.memory[0x70] -= 1
             ind := 0x50 + 2*m.memory[0x70]
             ip = (u16(m.memory[ind]) << 8) | u16(m.memory[ind+1])
-            continue loop
         case nibs[0] == 0x1:
             ip = inst & 0x0fff
-            continue loop
         case nibs[0] == 0x2:
             ind := 0x50 + 2*m.memory[0x70]
-            m.memory[ind] = u8((ip + 2) >> 8)
-            m.memory[ind+1] = u8((ip + 2) & 0x00ff)
+            m.memory[ind] = u8(ip >> 8)
+            m.memory[ind+1] = u8(ip & 0x00ff)
             m.memory[0x70] += 1
             ip = inst & 0x0fff
-            continue loop
         case nibs[0] == 0x3:
             if (m.registers[nibs[1]] == u8(inst & 0x00ff)) {
                 ip += 2
@@ -145,12 +144,16 @@ run :: proc(m: ^Machine) {
             m.registers[0xf] = u8(screen.draw_sprite(&m.screen, m.memory[m.index:][:n], x, y))
         case nibs[0] == 0xe:
             // TODO keypresses
+            // m.screen->poll_press
+            // if key press skip next inst
         case nibs[0] == 0xf:
             switch inst & 0x00ff {
             case 0x07:
                 m.registers[nibs[1]] = m.delay_timer
             case 0x0a:
                 // TODO keypresses
+                // m.screen->poll_press
+                // if no key press continue
             case 0x15:
                 m.delay_timer = m.registers[nibs[1]]
             case 0x18:
@@ -181,7 +184,6 @@ run :: proc(m: ^Machine) {
             break loop
         }
         time.sleep(time.Duration(time.duration_nanoseconds(1666)))
-        ip += 2
     }
 
 }
