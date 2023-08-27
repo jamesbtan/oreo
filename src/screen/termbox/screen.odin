@@ -34,8 +34,8 @@ termbox_draw :: proc(s: ^screen.Screen) {
         for x: u8 = 63; x <= 63; x -= 1 {
             xc: u8 = x / 8
             xb: u8 = 7 - (x % 8)
-            set_cell(i32(x), i32(y), s.buf[y][xc] & (1 << xb) != 0 ? '█' : ' ', DEFAULT, DEFAULT)
-            //print(i32(x)*2, i32(y), DEFAULT, DEFAULT, s.buf[y][xc] & (1 << xb) != 0 ? "██" : "  ")
+            //set_cell(i32(x), i32(y), s.buf[y][xc] & (1 << xb) != 0 ? '█' : ' ', DEFAULT, DEFAULT)
+            print(i32(x)*2, i32(y), DEFAULT, DEFAULT, s.buf[y][xc] & (1 << xb) != 0 ? "██" : "  ")
         }
     }
     present()

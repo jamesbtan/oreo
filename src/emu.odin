@@ -26,6 +26,7 @@ init :: proc(m: ^Machine) {
         0xf0, 0x80, 0xf0, 0x80, 0x80, // F
     }
     mem.copy_non_overlapping(&m.memory[0], &sprites[0], len(sprites))
+    // stack from [0x50,0x70)? 0x70 is current index
     m.screen->init()
 }
 
@@ -42,7 +43,7 @@ load :: proc(m: ^Machine, rom: io.Stream) {
     }
 }
 
-run :: proc(m: ^Machine) {
+run :: proc(m: ^Machine) -> u16 {
     ip: u16 = 0x200
     loop: for {
         inst := u16(m.memory[ip]) << 8 | u16(m.memory[ip+1])
@@ -51,12 +52,70 @@ run :: proc(m: ^Machine) {
         switch {
         case inst == 0x00e0:
             m.screen->clear()
+        case fnib == 0x1000:
+            ip = inst & 0x0fff
+            continue loop
+        case fnib == 0x2000:
+            // ind := 0x50 + 2*m.memory[0x70]
+            // m.memory[ind] = u8((ip + 2) >> 8)
+            // m.memory[ind+1] = u8((ip + 2) & 0x00ff)
+            // m.memory[0x70] += 1
+            // ip = inst & 0x0fff
+            // continue loop
+        case inst == 0x00ee:
+            // m.memory[0x70] -= 1
+            // ind := 0x50 + 2*m.memory[0x70]
+            // ip = u16(m.memory[ind] << 8) | u16(m.memory[ind+1])
+            // continue loop
+        case fnib == 0x3000:
+            if (m.registers[(inst & 0x0f00) >> 8] == u8(inst & 0x00ff)) {
+                ip += 2
+            }
+        case fnib == 0x4000:
+            if (m.registers[(inst & 0x0f00) >> 8] != u8(inst & 0x00ff)) {
+                ip += 2
+            }
+        case fnib == 0x5000:
+            reg1 := m.registers[(inst & 0x0f00) >> 8]
+            reg2 := m.registers[(inst & 0x00f0) >> 4]
+            if (reg1 == reg2) {
+                ip += 2
+            }
         case fnib == 0x6000:
             reg := (inst & 0x0f00) >> 8
             m.registers[reg] = u8(inst & 0x00ff)
         case fnib == 0x7000:
             reg := (inst & 0x0f00) >> 8
             m.registers[reg] += u8(inst & 0x00ff)
+        case fnib == 0x8000:
+            regX := &m.registers[(inst & 0x0f00) >> 8]
+            regY := &m.registers[(inst & 0x00f0) >> 4]
+            switch lnib {
+            case 0x0:
+                regX^ = regY^
+            case 0x1:
+                regX^ |= regY^
+            case 0x2:
+                regX^ &= regY^
+            case 0x3:
+                regX^ ~= regY^
+            case 0x4:
+                regX^ += regY^
+            case 0x5:
+                regX^ -= regY^
+            case 0x7:
+                regX^ = regY^ - regX^
+            case 0x6:
+                regX^ = regY^ >> 1
+            case 0xe:
+                regX^ = regY^ << 1
+            }
+        case fnib == 0x9000:
+            reg1 := m.registers[(inst & 0x0f00) >> 8]
+            reg2 := m.registers[(inst & 0x00f0) >> 4]
+            if (reg1 != reg2) {
+                ip += 2
+            }
         case fnib == 0xa000:
             m.index = inst & 0x0fff
         case fnib == 0xd000:
@@ -64,11 +123,31 @@ run :: proc(m: ^Machine) {
             y := m.registers[inst & 0x00f0 >> 4]
             n := inst & 0x000f
             m.registers[0xf] = u8(screen.draw_sprite(&m.screen, m.memory[m.index:][:n], x, y))
-        case fnib == 0x1000:
-            ip = inst & 0x0fff
-            continue loop
+        case fnib == 0xf000:
+            switch inst & 0x00ff {
+            case 0x55:
+                for i: u8 = 0; i <= u8((inst & 0x0f00) >> 8); i += 1 {
+                    m.memory[m.index] = m.registers[i]
+                    m.index += 1
+                }
+            case 0x65:
+                for i: u8 = 0; i <= u8((inst & 0x0f00) >> 8); i += 1 {
+                    m.registers[i] = m.memory[m.index]
+                    m.index += 1
+                }
+            case 0x33:
+                val := m.registers[(inst & 0x0f00) >> 8]
+                m.memory[m.index+2] = val % 10
+                val /= 10
+                m.memory[m.index+1] = val % 10
+                val /= 10
+                m.memory[m.index] = val % 10
+            case 0x1e:
+                m.index += u16(m.registers[(inst & 0x0f00) >> 8])
+            }
         case:
-            break loop
+            ind := 0x50
+            return u16(m.memory[ind] << 8 | m.memory[ind+1])
         }
         time.sleep(time.Duration(time.duration_nanoseconds(16666)))
         ip += 2
