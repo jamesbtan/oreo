@@ -2,6 +2,9 @@
 A CHIP-8 emulator in Odin
 
 # Todo
+- [ ] Add a way to force quit and cleanly exit
+    - Currently I am just pkilling the process :facepalm:
+
 Will be implementing instructions in the order they appear in https://github.com/Timendus/chip8-test-suite
 - [x] CHIP-8 splash screen
   - [x] 00E0
