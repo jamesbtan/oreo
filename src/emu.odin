@@ -48,26 +48,20 @@ run :: proc(m: ^Machine) {
         inst := u16(m.memory[ip]) << 8 | u16(m.memory[ip+1])
         fnib := inst & 0xf000
         lnib := inst & 0x000f
-        // fmt.eprintf("[%03x]%04x:\t", ip, inst)
         switch {
         case inst == 0x00e0:
-            // fmt.eprintln("clear screen")
             m.screen->clear()
         case fnib == 0x6000:
             reg := (inst & 0x0f00) >> 8
             m.registers[reg] = u8(inst & 0x00ff)
-            // fmt.eprintf("set V%x to %02x\n", reg, m.registers[reg])
         case fnib == 0xa000:
             m.index = inst & 0x0fff
-            // fmt.eprintf("set I to: %04x\n", m.index)
         case fnib == 0xd000:
-            // fmt.eprintln("draw sprite")
             x := m.registers[inst & 0x0f00 >> 8]
             y := m.registers[inst & 0x00f0 >> 4]
             n := inst & 0x000f
             m.registers[0xf] = u8(screen.draw_sprite(&m.screen, m.memory[m.index:][:n], x, y))
         case fnib == 0x1000:
-            // fmt.eprintln("jumping")
             ip = inst & 0x0fff
             continue loop
         case:
