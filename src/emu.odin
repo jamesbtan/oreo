@@ -55,17 +55,17 @@ run :: proc(m: ^Machine) -> u16 {
             ip = inst & 0x0fff
             continue loop
         case fnib == 0x2000:
-            // ind := 0x50 + 2*m.memory[0x70]
-            // m.memory[ind] = u8((ip + 2) >> 8)
-            // m.memory[ind+1] = u8((ip + 2) & 0x00ff)
-            // m.memory[0x70] += 1
-            // ip = inst & 0x0fff
-            // continue loop
+            ind := 0x50 + 2*m.memory[0x70]
+            m.memory[ind] = u8((ip + 2) >> 8)
+            m.memory[ind+1] = u8((ip + 2) & 0x00ff)
+            m.memory[0x70] += 1
+            ip = inst & 0x0fff
+            continue loop
         case inst == 0x00ee:
-            // m.memory[0x70] -= 1
-            // ind := 0x50 + 2*m.memory[0x70]
-            // ip = u16(m.memory[ind] << 8) | u16(m.memory[ind+1])
-            // continue loop
+            m.memory[0x70] -= 1
+            ind := 0x50 + 2*m.memory[0x70]
+            ip = (u16(m.memory[ind]) << 8) | u16(m.memory[ind+1])
+            continue loop
         case fnib == 0x3000:
             if (m.registers[(inst & 0x0f00) >> 8] == u8(inst & 0x00ff)) {
                 ip += 2
