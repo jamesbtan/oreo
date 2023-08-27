@@ -54,6 +54,9 @@ run :: proc(m: ^Machine) {
         case fnib == 0x6000:
             reg := (inst & 0x0f00) >> 8
             m.registers[reg] = u8(inst & 0x00ff)
+        case fnib == 0x7000:
+            reg := (inst & 0x0f00) >> 8
+            m.registers[reg] += u8(inst & 0x00ff)
         case fnib == 0xa000:
             m.index = inst & 0x0fff
         case fnib == 0xd000:

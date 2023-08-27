@@ -27,6 +27,22 @@ draw_sprite :: proc(s: ^Screen, sprite: []u8, x, y: u8) -> (swap: bool) {
             swap |= curr^ ~ row != 0
             curr^ ~= row
         }
+    } else {
+        xl := x / 8
+        xr := xl + 1
+        sh := x % 8
+        for row, i in sprite {
+            if (y+u8(i) >= 32) { break }
+            curr_l := &s.buf[y+u8(i)][xl]
+            row_l := row >> sh
+            swap |= curr_l^ ~ row_l != 0
+            curr_l^ ~= row_l
+            if (xr >= 8) { continue }
+            curr_r := &s.buf[y+u8(i)][xr]
+            row_r := row << (8 - sh)
+            swap |= curr_r^ ~ row_r != 0
+            curr_r^ ~= row_r
+        }
     }
     if (swap) { s->draw() }
     return

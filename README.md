@@ -12,8 +12,8 @@ Will be implementing instructions in the order they appear in https://github.com
   - [x] Annn
   - [x] Dxyn
   - [x] 1nnn
-- [ ] IBM logo
-  - [ ] 7xnn
+- [x] IBM logo
+  - [x] 7xnn
 - [ ] Corax+ opcode test
   - [ ] 3xnn
   - [ ] 4xnn

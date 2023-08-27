@@ -20,6 +20,7 @@ foreign termbox {
     shutdown :: proc() -> c.int ---
 
     set_cell :: proc(c.int, c.int, c.uint32_t, c.uint16_t, c.uint16_t) -> c.int ---
+    print :: proc(c.int, c.int, c.uint16_t, c.uint16_t, cstring) -> c.int ---
 
     clear :: proc() -> c.int ---
     present :: proc() -> c.int ---
