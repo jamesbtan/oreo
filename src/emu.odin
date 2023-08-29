@@ -5,7 +5,7 @@ import "core:mem"
 import "core:time"
 import "screen"
 
-init :: proc(m: ^Machine) {
+init :: proc(m: ^Machine) -> bool {
     sprites :: [?]u8{
         0xf0, 0x90, 0x90, 0x90, 0xf0, // 0
         0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -25,7 +25,7 @@ init :: proc(m: ^Machine) {
         0xf0, 0x80, 0xf0, 0x80, 0x80, // F
     }
     for byte, i in sprites do m.memory[i] = byte
-    m.screen->init()
+    return m.screen->init()
 }
 
 deinit :: proc(m: ^Machine) {
@@ -60,7 +60,7 @@ run :: proc(m: ^Machine) {
         ip += 2
         switch {
         case inst == 0x00e0:
-            screen.clear(&m.screen)
+            screen.clear(m.screen)
         case inst == 0x00ee:
             m.memory[0x70] -= 1
             ind := 0x50 + 2*m.memory[0x70]
@@ -141,19 +141,25 @@ run :: proc(m: ^Machine) {
             x := m.registers[nibs[1]]
             y := m.registers[nibs[2]]
             n := nibs[3]
-            m.registers[0xf] = u8(screen.draw_sprite(&m.screen, m.memory[m.index:][:n], x, y))
+            m.registers[0xf] = u8(screen.draw_sprite(m.screen, m.memory[m.index:][:n], x, y))
         case nibs[0] == 0xe:
-            // TODO keypresses
-            // m.screen->poll_press
-            // if key press skip next inst
+            key, ok := m.screen->poll()
+            switch inst & 0x00ff {
+            case 0x9e:
+                if ok && m.registers[nibs[1]] == key do ip += 2
+            case 0xa1:
+                if !ok || m.registers[nibs[1]] != key do ip += 2
+            }
+            continue
         case nibs[0] == 0xf:
             switch inst & 0x00ff {
             case 0x07:
                 m.registers[nibs[1]] = m.delay_timer
             case 0x0a:
-                // TODO keypresses
-                // m.screen->poll_press
-                // if no key press continue
+                key, ok := m.screen->poll()
+                if !ok do break
+                m.registers[nibs[1]] = key
+                continue
             case 0x15:
                 m.delay_timer = m.registers[nibs[1]]
             case 0x18:

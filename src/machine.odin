@@ -3,7 +3,7 @@ package oreo
 import "screen"
 
 Machine :: struct {
-    screen: screen.Screen,
+    screen: ^screen.Screen,
     index: u16,
     registers: [16]u8,
     // timers count down at 60Hz til 0

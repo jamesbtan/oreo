@@ -2,12 +2,14 @@ package oreo
 
 import "core:os"
 import "core:fmt"
-import "screen/termbox"
+import "screen/sdl"
 
 main :: proc() {
-    m := Machine{screen=termbox.get_screen()}
-    init(&m)
+    s := sdl.get_screen()
+    m := Machine{screen=&s}
+    ok := init(&m)
     defer deinit(&m)
+    if !ok do return
     {
         f, ferr := os.open(os.args[1])
         if (ferr != 0) {
