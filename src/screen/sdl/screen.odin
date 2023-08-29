@@ -71,5 +71,25 @@ sdl_present :: proc(sr: rawptr) {
 
 sdl_poll :: proc(sr: rawptr) -> (u8, bool) {
     s := (^Screen)(sr)
+    PumpEvents()
+    a := GetKeyboardState(nil)
+    switch {
+    case a[SDL_SCANCODE_1] != 0: return 0x1, true
+    case a[SDL_SCANCODE_2] != 0: return 0x2, true
+    case a[SDL_SCANCODE_3] != 0: return 0x3, true
+    case a[SDL_SCANCODE_4] != 0: return 0xc, true
+    case a[SDL_SCANCODE_Q] != 0: return 0x4, true
+    case a[SDL_SCANCODE_W] != 0: return 0x5, true
+    case a[SDL_SCANCODE_E] != 0: return 0x6, true
+    case a[SDL_SCANCODE_R] != 0: return 0xd, true
+    case a[SDL_SCANCODE_A] != 0: return 0x7, true
+    case a[SDL_SCANCODE_S] != 0: return 0x8, true
+    case a[SDL_SCANCODE_D] != 0: return 0x9, true
+    case a[SDL_SCANCODE_F] != 0: return 0xe, true
+    case a[SDL_SCANCODE_Z] != 0: return 0xa, true
+    case a[SDL_SCANCODE_X] != 0: return 0x0, true
+    case a[SDL_SCANCODE_C] != 0: return 0xb, true
+    case a[SDL_SCANCODE_V] != 0: return 0xf, true
+    }
     return 0x0, false
 }

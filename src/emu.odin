@@ -99,10 +99,13 @@ run :: proc(m: ^Machine) {
                 regX^ = regY^
             case 0x1:
                 regX^ |= regY^
+                m.registers[0xf] = 0x0
             case 0x2:
                 regX^ &= regY^
+                m.registers[0xf] = 0x0
             case 0x3:
                 regX^ ~= regY^
+                m.registers[0xf] = 0x0
             case 0x4:
                 sum := regX^ + regY^
                 flag := u8(sum < regX^)
@@ -150,16 +153,17 @@ run :: proc(m: ^Machine) {
             case 0xa1:
                 if !ok || m.registers[nibs[1]] != key do ip += 2
             }
-            continue
         case nibs[0] == 0xf:
             switch inst & 0x00ff {
             case 0x07:
                 m.registers[nibs[1]] = m.delay_timer
             case 0x0a:
                 key, ok := m.screen->poll()
-                if !ok do break
-                m.registers[nibs[1]] = key
-                continue
+                if !ok {
+                    ip -= 2
+                } else {
+                    m.registers[nibs[1]] = key
+                }
             case 0x15:
                 m.delay_timer = m.registers[nibs[1]]
             case 0x18:
@@ -188,6 +192,7 @@ run :: proc(m: ^Machine) {
             }
         case:
             break loop
+            //ip -= 2
         }
         time.sleep(time.Duration(time.duration_nanoseconds(1666)))
     }
